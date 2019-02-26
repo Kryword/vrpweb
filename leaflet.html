@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>OptaPlanner webexamples: vehicle routing with leaflet.js</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-theme.min.css">
+    <link href="leaflet/leaflet.css" rel="stylesheet">
+    <link href="vehicleRouting.css" rel="stylesheet">
+
+    <script type="text/javascript" src="jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        window.L_DISABLE_3D = true;
+    </script>
+    <script type="text/javascript" src="leaflet/leaflet.js"></script>
+    <script type="text/javascript" src="FileSaver.js"></script>
+</head>
+<body>
+<header class="main-page-header text-center">
+    <h1>Vehicle routing</h1>
+</header>
+<div class="container" id="container">
+    <div class="row">
+        <form class="form-inline col-lg-6" action="testing.php" method="post" enctype="multipart/form-data">
+                <input name="fileToUpload" id="fileToUpload" type="file" class="m-2"/>
+                <button name="submit" type="submit" class="btn btn-primary m-2">Upload</button>
+                <button id="clearSolutionButton" class="btn btn-info m-2" type="button" onclick="clearSolution()">Recargar solución</button>
+                <button id="saveSolution" class="btn btn-info m-2" type="button" onclick="guardarSolucion()">Exportar solución</button>
+        </form>
+        
+        <p class="pull-right col-lg-6">Distancia total: <b><span id="scoreValue" class="badge badge-primary">Not solved</span></b></p>
+        <div class="col-lg-6">
+            <button id="solveButton" class="btn btn-success" type="submit" onclick="solve()">Resuelve el problema</button>
+            <button id="terminateEarlyButton" class="btn btn-danger" type="submit" onclick="terminateEarly()" disabled="disabled">Stop</button>
+        </div>
+    </div>
+    <div id="map" class="col-lg-12" style="height: 600px; margin-top: 10px; margin-bottom: 10px;"></div>
+</div>
+
+<script src="leaflet/leaflet.js"></script>
+<script type="text/javascript">
+    var ipREST = "http://192.168.56.101:8080";
+    //var ipREST = "http://localhost:8080";
+    var savedSolution;
+    var map;
+    var vehicleRouteLayerGroup;
+    var markers = [];
+    var intervalTimer;
+
+    initMap = function() {
+        map = L.map('map');
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        loadSolution();
+        updateSolution();
+    };
+
+    ajaxError = function(jqXHR, textStatus, errorThrown) {
+        console.log("Error: " + errorThrown);
+        console.log("TextStatus: " + textStatus);
+        console.log("jqXHR: " + jqXHR);
+        alert("Error: " + errorThrown);
+    };
+
+    loadSolution = function() {
+        $.ajax({
+            url: ipREST+"/optaplanner-webexamples/rest/vehiclerouting/solution",
+            type: "GET",
+            dataType : "json",
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(solution) {
+                if (!(markers === undefined || markers.length === 0)){
+                    for (var i = 0; i < markers.length; i++) {
+                        map.removeLayer(markers[i]);
+                    }
+                }
+
+                markers = [];
+                console.log(solution);
+                $.each(solution.customerList, function(index, customer) {
+                    var customerIcon = L.divIcon({
+                        iconSize: new L.Point(20, 20),
+                        className: "vehicleRoutingCustomerMarker",
+                        html: "<span>" + customer.demand + "</span>"
+                    });
+                    var marker = L.marker([customer.latitude, customer.longitude], {icon: customerIcon});
+                    marker.addTo(map).bindPopup(customer.locationName + "</br>Deliver " + customer.demand + " items.");
+                    markers.push(marker);
+                });
+                map.fitBounds(L.featureGroup(markers).getBounds());
+            }, error : function(jqXHR, textStatus, errorThrown) {ajaxError(jqXHR, textStatus, errorThrown)}
+        });
+    };
+
+    updateSolution = function() {
+        $.ajax({
+            url: ipREST+"/optaplanner-webexamples/rest/vehiclerouting/solution",
+            type: "GET",
+            dataType : "json",
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(solution) {
+                savedSolution = solution;
+                if (vehicleRouteLayerGroup != undefined) {
+                    map.removeLayer(vehicleRouteLayerGroup);
+                }
+                var vehicleRouteLines = [];
+                $.each(solution.vehicleRouteList, function(index, vehicleRoute) {
+                    var locations = [[vehicleRoute.depotLatitude, vehicleRoute.depotLongitude]];
+                    $.each(vehicleRoute.customerList, function(index, customer) {
+                        locations.push([customer.latitude, customer.longitude]);
+                    });
+                    locations.push([vehicleRoute.depotLatitude, vehicleRoute.depotLongitude]);
+                    vehicleRouteLines.push(L.polyline(locations, {color: vehicleRoute.hexColor}));
+                });
+                vehicleRouteLayerGroup = L.layerGroup(vehicleRouteLines).addTo(map);
+                $('#scoreValue').text(solution.feasible ? solution.distance : "Not solved");
+            }, error : function(jqXHR, textStatus, errorThrown) {ajaxError(jqXHR, textStatus, errorThrown)}
+        });
+    };
+
+    solve = function() {
+        $('#solveButton').prop("disabled", false);
+        $.ajax({
+            url: ipREST+"/optaplanner-webexamples/rest/vehiclerouting/solution/solve",
+            type: "POST",
+            dataType : "json",
+            data : "",
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(message) {
+                loadSolution();
+                console.log(message.text);
+                intervalTimer = setInterval(function () {
+                    updateSolution()
+                }, 2000);
+                $('#solveButton').prop("disabled", true);
+                $('#terminateEarlyButton').prop("disabled", false);
+            }, error : function(jqXHR, textStatus, errorThrown) {ajaxError(jqXHR, textStatus, errorThrown)}
+        });
+    };
+
+    terminateEarly = function () {
+        $('#terminateEarlyButton').prop("disabled", false);
+        window.clearInterval(intervalTimer);
+        $.ajax({
+            url: ipREST+"/optaplanner-webexamples/rest/vehiclerouting/solution/terminateEarly",
+            type: "POST",
+            data : "",
+            dataType : "json",
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function( message ) {
+                console.log(message.text);
+                //updateSolution();
+                $('#solveButton').prop("disabled", false);
+                $('#terminateEarlyButton').prop("disabled", true);
+            }, error : function(jqXHR, textStatus, errorThrown) {ajaxError(jqXHR, textStatus, errorThrown)}
+        });
+    };
+
+    clearSolution = function () {
+        window.clearInterval(intervalTimer);
+        savedSolution = null;
+        $.ajax({
+            url: ipREST+"/optaplanner-webexamples/rest/vehiclerouting/solution/clear",
+            type: "POST",
+            data : "",
+            dataType : "json",
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function( message ) {
+                console.log(message.text);
+                //updateSolution();
+                //initMap();
+                loadSolution();
+                $('#solveButton').prop("disabled", false);
+                $('#terminateEarlyButton').prop("disabled", true);
+            }, error : function(jqXHR, textStatus, errorThrown) {ajaxError(jqXHR, textStatus, errorThrown)}
+        });
+    };
+
+    guardarSolucion = function(){
+        if (savedSolution != undefined && savedSolution != null)
+            saveTextAs(JSON.stringify(savedSolution), "solucion.json");
+    }
+
+    initMap();
+</script>
+</body>
+</html>
