@@ -47,6 +47,7 @@ body, html {
     height: 100%;
     width: 100%;
     overflow: hidden;
+    background-color: #cccccc;
 }
 
 #container {
@@ -56,4 +57,54 @@ body, html {
 
 .row {
     margin-left: 5px
+}
+
+.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1001;
+    top: 0;
+    left: 0;
+    background-color: #ababab;
+    overflow-x: hidden;
+    padding-top: 20px;
+    transition: 0.2s;
+}
+
+.sidenav a {
+    padding: 8 8 8 8;
+    text-decoration: none;
+    font-size: 25px;
+    color: black;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidenav a:hover {
+    color: grey;
+}
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 5px;
+    font-size: 36px;
+    color: red;
+}
+
+.sidenav .closebtn:hover {
+    color: darkred;
+}
+
+.sidenav h2 {
+    color: white;
+}
+
+#abrirNav {
+    transition: 0.2s;
+}
+
+#abrirNav:hover {
+    background-color: darkgrey;
 }
