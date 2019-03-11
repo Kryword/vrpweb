@@ -55,7 +55,34 @@ function listaSolucionesParse(){
 }
 
 function cargaSolucion(id){
-    alert("Cargando solución con id = " + id);
+    const Store = Parse.Object.extend("Soluciones");
+    var query = new Parse.Query(Store);
+    query.get(id).then(solucion => {
+        //console.log(solucion);
+        var oSol = new Object({
+            name: solucion.get('name'),
+            customerList: solucion.get('customerList'),
+            vehicleRouteList: solucion.get('vehicleRouteList'),
+            distance: solucion.get('distance'),
+            feasible: solucion.get('feasible')
+        });
+        oSol = JSON.stringify(oSol);
+        //console.log("Sending ajax request: " + oSol);
+        $.ajax({
+            url: ipREST+"/rest/vehiclerouting/solution/update",
+            type: "POST",
+            data : oSol,
+            dataType : "json",
+            xhrFields: {
+                withCredentials: true
+            },
+            contentType: "application/json; charset=utf-8",
+            success: function( message ) {
+                console.log(message);
+                loadSolution();
+            }, error : function(jqXHR, textStatus, errorThrown) {ajaxError(jqXHR, textStatus, errorThrown)}
+        });
+    })
 }
 
 function openNav() {

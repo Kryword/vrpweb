@@ -1,5 +1,5 @@
-var ipREST = "http://192.168.56.101:8080";
-//var ipREST = "http://localhost:8080";
+var ipREST = "http://192.168.56.101:8080/optaplanner";
+//var ipREST = "http://localhost:8080/optaplanner";
 var savedSolution;
 var map;
 var vehicleRouteLayerGroup;
@@ -24,7 +24,7 @@ ajaxError = function(jqXHR, textStatus, errorThrown) {
 
 loadSolution = function() {
     $.ajax({
-        url: ipREST+"/optaplanner-webexamples/rest/vehiclerouting/solution",
+        url: ipREST+"/rest/vehiclerouting/solution",
         type: "GET",
         dataType : "json",
         xhrFields: {
@@ -56,7 +56,7 @@ loadSolution = function() {
 
 updateSolution = function() {
     $.ajax({
-        url: ipREST+"/optaplanner-webexamples/rest/vehiclerouting/solution",
+        url: ipREST+"/rest/vehiclerouting/solution",
         type: "GET",
         dataType : "json",
         xhrFields: {
@@ -86,7 +86,7 @@ updateSolution = function() {
 solve = function() {
     $('#solveButton').prop("disabled", false);
     $.ajax({
-        url: ipREST+"/optaplanner-webexamples/rest/vehiclerouting/solution/solve",
+        url: ipREST+"/rest/vehiclerouting/solution/solve",
         type: "POST",
         dataType : "json",
         data : "",
@@ -109,7 +109,7 @@ terminateEarly = function () {
     $('#terminateEarlyButton').prop("disabled", false);
     window.clearInterval(intervalTimer);
     $.ajax({
-        url: ipREST+"/optaplanner-webexamples/rest/vehiclerouting/solution/terminateEarly",
+        url: ipREST+"/rest/vehiclerouting/solution/terminateEarly",
         type: "POST",
         data : "",
         dataType : "json",
@@ -129,7 +129,7 @@ clearSolution = function () {
     window.clearInterval(intervalTimer);
     savedSolution = null;
     $.ajax({
-        url: ipREST+"/optaplanner-webexamples/rest/vehiclerouting/solution/clear",
+        url: ipREST+"/rest/vehiclerouting/solution/clear",
         type: "POST",
         data : "",
         dataType : "json",
