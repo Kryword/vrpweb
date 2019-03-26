@@ -32,9 +32,6 @@ loadSolution = function() {
         xhrFields: {
             withCredentials: true
         },
-        headers: {
-            'Origin': 'https://opta.herokuapp.com/optaplanner' 
-        },
         success: function(solution) {
             if (!(markers === undefined || markers.length === 0)){
                 for (var i = 0; i < markers.length; i++) {
@@ -67,9 +64,6 @@ updateSolution = function() {
         xhrFields: {
             withCredentials: true
         },
-        headers: {
-            'Origin': 'https://opta.herokuapp.com/optaplanner' 
-        },
         success: function(solution) {
             savedSolution = solution;
             if (vehicleRouteLayerGroup != undefined) {
@@ -100,9 +94,6 @@ solve = function() {
         data : "",
         xhrFields: {
             withCredentials: true
-        },
-        headers: {
-            'Origin': 'https://opta.herokuapp.com/optaplanner' 
         },
         success: function(message) {
             loadSolution();
