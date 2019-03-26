@@ -105,8 +105,8 @@ $("form#subirFichero").submit(function(e){
         success: function(data){
             clearSolution();
         },
+        contentType: "application/json; charset=utf-8",
         cache: false,
-        contentType: false,
         processData: false
     });
 });
