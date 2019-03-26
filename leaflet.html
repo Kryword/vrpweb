@@ -35,7 +35,7 @@
 
 <div class="container" id="container">
     <div class="row">
-        <form class="form-inline col-lg-6" action="http://192.168.56.101:8080/optaplanner/rest/vehiclerouting/solution/upload" method="post" enctype="multipart/form-data" target="hiddenFrame">
+        <form id="subirFichero" class="form-inline col-lg-6"method="post" enctype="multipart/form-data">
                 <input name="fileToUpload" id="fileToUpload" type="file" class="m-2"/>
                 <button name="submit" type="submit" class="btn btn-primary m-2">Upload</button>
                 <button id="clearSolutionButton" class="btn btn-info m-2" type="button" onclick="clearSolution()">Recargar solución</button>

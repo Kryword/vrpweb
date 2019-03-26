@@ -94,3 +94,19 @@ function openNav() {
 function closeNav(){
     document.getElementById("sideNav").style.width = "0";
 }
+
+$("form#subirFichero").submit(function(e){
+    e.preventDefault();
+    var formData = new FormData(this);
+    $.ajax({
+        url: ipREST + "/rest/vehiclerouting/solution/upload",
+        type: 'POST',
+        data: formData,
+        success: function(data){
+            clearSolution();
+        },
+        cache: false,
+        contentType: false,
+        processData: false
+    });
+});
