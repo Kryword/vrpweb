@@ -1,6 +1,7 @@
 //var ipREST = "http://192.168.56.101:8080/optaplanner";
 //var ipREST = "http://localhost:8080/optaplanner";
-var ipREST = "https://opta.herokuapp.com/optaplanner";
+//var ipREST = "https://opta.herokuapp.com/optaplanner";
+var ipREST = "https://vrpweb.herokuapp.com/api";
 var savedSolution;
 var map;
 var vehicleRouteLayerGroup;

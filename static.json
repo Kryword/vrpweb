@@ -1,0 +1,9 @@
+{
+	"root": "",
+	"proxies": {
+		"/api/": {
+			"origin": "https://opta.herokuapp.com/optaplanner"
+		}
+	},
+	"https_only": true
+}
