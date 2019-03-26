@@ -1,5 +1,5 @@
 Parse.initialize('vrpparse', 'unused');
-Parse.serverURL = 'https://vrpparse.herokuapp.com/parse';
+Parse.serverURL = 'http://vrpparse.herokuapp.com/parse';
 
 function guardaSolucionParse(solucion){
     const Store = Parse.Object.extend("Soluciones");
