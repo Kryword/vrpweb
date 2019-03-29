@@ -109,4 +109,43 @@ $("form#subirFichero").submit(function(e){
         contentType: false,
         processData: false
     });
+
+    var fileToUpload = $("#fileToUpload")[0];
+    if (fileToUpload.files.length > 0){
+        var file = fileToUpload.files[0];
+        var name = file.name;
+        var parseFile = new Parse.File(name, file);
+
+        const Problema = Parse.Object.extend("Problema");
+        var query = new Parse.Query(Problema);
+        query.equalTo("name", name);
+        query.first().then(result => {
+            if (result != undefined){
+                // Actualizamos la solución con el mismo nombre
+                // En el futuro deberían borrarse los archivos que ya existan
+                //result.fetch().then(res => console.log(res.get("file").))
+                parseFile.save()
+                .then(function (data){
+                    result.save({
+                        "file": parseFile
+                    });
+                }, function(){
+                    alert("Se ha producido un error al guardar el fichero en parse.");
+                });
+            }else{
+                // Subimos la solución a Parse
+                parseFile.save()
+                .then(function (data){
+                    var problema = new Parse.Object("Problema");
+                    problema.set("name", name);
+                    problema.set("file", parseFile);
+                    problema.save();
+                }, function(){
+                    alert("Se ha producido un error al guardar el fichero en parse.");
+                });
+            }
+        }, (error) => {
+            alert("Se produjo un error al subir el archivo a Parse: " + error.number + " " + error.message);
+        });
+    }
 });
