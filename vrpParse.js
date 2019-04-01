@@ -46,11 +46,65 @@ function listaSolucionesParse(){
             nuevoElemento.on('click', function (){
                 cargaSolucion(solucion.id)
             });
-            nuevoElemento.appendTo('#sideNav');
+            nuevoElemento.appendTo('#soluciones');
 
             console.log("Solucion: " + solucion.get('name') + ", " + solucion.get('vehicleRouteList') + ', ' + solucion.get('distance'));
         }
         $("#loadingImg").hide();
+    });
+}
+
+function listaProblemasParse(){
+    $('.vrpProblemas').remove();
+    const Store = Parse.Object.extend("Problema");
+    var query = new Parse.Query(Store);
+    query.find().then((results)=>{
+        for (var i = 0; i < results.length; i++) {
+            let problema = results[i];
+            var nuevoElemento = $('<a />',{
+                text: problema.get('name'),
+                title: problema.get('name'),
+                href: '#',
+                class: 'vrpProblemas',
+            })
+            nuevoElemento.on('click', function (){
+                cargaProblema(problema.id)
+            });
+            nuevoElemento.appendTo('#problemas');
+            console.log(problema);
+            //console.log("Problema: " + solucion.get('name') + ", " + solucion.get('vehicleRouteList') + ', ' + solucion.get('distance'));
+        }
+        $("#loadingImg").hide();
+    });
+}
+
+function cargaProblema(id){
+    const Store = Parse.Object.extend("Problema");
+    var query = new Parse.Query(Store);
+    query.get(id).then(problema => {
+        let file = problema.get('file');
+        var formData = new FormData();
+        $.ajax({
+            url: file.url,
+            type: "GET",
+            responseType: "blob",
+            success: function(message){
+                formData.append("fileToUpload", message);
+                formData.append("fileName", "ficheroPrueba.vrp");
+                $.ajax({
+                    url: ipREST + "/rest/vehiclerouting/solution/upload",
+                    type: 'POST',
+                    data: formData,
+                    success: function(data){
+                        clearSolution();
+                        loadSolution();
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            }
+        });
     });
 }
 
@@ -88,6 +142,7 @@ function cargaSolucion(id){
 function openNav() {
     $("#loadingImg").show();
     listaSolucionesParse();
+    listaProblemasParse();
     document.getElementById("sideNav").style.width = "300px";
 }
 
