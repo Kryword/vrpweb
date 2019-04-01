@@ -84,8 +84,10 @@ function cargaProblema(id){
     query.get(id).then(problema => {
         let file = problema.get('file');
         var formData = new FormData();
+        let url = file.url();
+        url = url.replace(/^http:\/\//i, 'https://');
         $.ajax({
-            url: file.url(),
+            url: url,
             type: "GET",
             responseType: "blob",
             success: function(message){
