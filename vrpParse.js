@@ -85,7 +85,7 @@ function cargaProblema(id){
         let file = problema.get('file');
         var formData = new FormData();
         $.ajax({
-            url: file.url,
+            url: file.url(),
             type: "GET",
             responseType: "blob",
             success: function(message){
