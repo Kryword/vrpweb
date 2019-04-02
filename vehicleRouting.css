@@ -35,10 +35,11 @@
     width: 100%;
 }
 
-.container {
+#container {
     height: 100%;
     width: 100%;
     overflow: hidden;
+    padding-left: 27%;
 }
 
 body, html {
@@ -50,19 +51,10 @@ body, html {
     background-color: #cccccc;
 }
 
-#container {
-    margin: 0px;
-    padding: 0;
-}
-
-.row {
-    margin-left: 5px
-}
-
 .sidenav {
     height: 100%;
-    width: 0;
-    position: fixed;
+    width: 25%;
+    position: absolute;
     z-index: 1001;
     top: 0;
     left: 0;

@@ -206,3 +206,9 @@ $("form#subirFichero").submit(function(e){
         });
     }
 });
+
+$(document).ready(function(){
+    listaSolucionesParse();
+    listaProblemasParse();
+    $("#loadingImg").hide();
+});
