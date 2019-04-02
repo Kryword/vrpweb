@@ -13,6 +13,9 @@ function guardaSolucionParse(solucion){
                 distance: solucion.distance,
                 feasible: solucion.feasible,
                 vehicleRouteList: solucion.vehicleRouteList
+            })
+            .then(function(data){
+                listaSolucionesParse();
             });
         }else{
             // Subimos la solución a Parse
@@ -23,6 +26,9 @@ function guardaSolucionParse(solucion){
                 distance: solucion.distance,
                 feasible: solucion.feasible,
                 vehicleRouteList: solucion.vehicleRouteList
+            })
+            .then(function(data){
+                listaSolucionesParse();
             });
         }
     }, (error) => {
@@ -178,7 +184,7 @@ $("form#subirFichero").submit(function(e){
         query.equalTo("name", name);
         query.first().then(result => {
             if (result != undefined){
-                // Actualizamos la solución con el mismo nombre
+                // Actualizamos el problema con el mismo nombre
                 // En el futuro deberían borrarse los archivos que ya existan
                 //result.fetch().then(res => console.log(res.get("file").))
                 parseFile.save()
@@ -190,13 +196,16 @@ $("form#subirFichero").submit(function(e){
                     alert("Se ha producido un error al guardar el fichero en parse.");
                 });
             }else{
-                // Subimos la solución a Parse
+                // Subimos el problema a Parse
                 parseFile.save()
                 .then(function (data){
                     var problema = new Parse.Object("Problema");
                     problema.set("name", name);
                     problema.set("file", parseFile);
-                    problema.save();
+                    problema.save()
+                        .then(function(data){
+                            listaProblemasParse();
+                        });
                 }, function(){
                     alert("Se ha producido un error al guardar el fichero en parse.");
                 });
