@@ -120,30 +120,47 @@ function cargaSolucion(id){
     const Store = Parse.Object.extend("Soluciones");
     var query = new Parse.Query(Store);
     query.get(id).then(solucion => {
-        //console.log(solucion);
-        var oSol = new Object({
+        var solution = new Object({
             name: solucion.get('name'),
             customerList: solucion.get('customerList'),
             vehicleRouteList: solucion.get('vehicleRouteList'),
             distance: solucion.get('distance'),
             feasible: solucion.get('feasible')
         });
-        oSol = JSON.stringify(oSol);
-        //console.log("Sending ajax request: " + oSol);
-        $.ajax({
-            url: ipREST+"/rest/vehiclerouting/solution/update",
-            type: "POST",
-            data : oSol,
-            dataType : "json",
-            xhrFields: {
-                withCredentials: true
-            },
-            contentType: "application/json; charset=utf-8",
-            success: function( message ) {
-                console.log(message);
-                loadSolution();
-            }, error : function(jqXHR, textStatus, errorThrown) {ajaxError(jqXHR, textStatus, errorThrown)}
+
+        // Muestro los nuevos puntos en el mapa, copiado y modificado de "loadSolution"
+        if (!(markers === undefined || markers.length === 0)){
+            for (var i = 0; i < markers.length; i++) {
+                map.removeLayer(markers[i]);
+            }
+        }
+
+        markers = [];
+        console.log(solution);
+        $.each(solution.customerList, function(index, customer) {
+            var customerIcon = L.divIcon({
+                iconSize: new L.Point(20, 20),
+                className: "vehicleRoutingCustomerMarker",
+                html: "<span>" + customer.demand + "</span>"
+            });
+            var marker = L.marker([customer.latitude, customer.longitude], {icon: customerIcon});
+            marker.addTo(map).bindPopup(customer.locationName + "</br>Deliver " + customer.demand + " items.");
+            markers.push(marker);
         });
+        map.fitBounds(L.featureGroup(markers).getBounds());
+
+        // Muestro el camino, copiado de "updateSolution"
+        map.removeLayer(vehicleRouteLayerGroup);
+        var vehicleRouteLines = [];
+        $.each(solution.vehicleRouteList, function(index, vehicleRoute) {
+            var locations = [[vehicleRoute.depotLatitude, vehicleRoute.depotLongitude]];
+            $.each(vehicleRoute.customerList, function(index, customer) {
+                locations.push([customer.latitude, customer.longitude]);
+            });
+            locations.push([vehicleRoute.depotLatitude, vehicleRoute.depotLongitude]);
+            vehicleRouteLines.push(L.polyline(locations, {color: vehicleRoute.hexColor}));
+        });
+        vehicleRouteLayerGroup = L.layerGroup(vehicleRouteLines).addTo(map);
     })
 }
 
