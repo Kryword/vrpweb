@@ -52,7 +52,8 @@ function listaSolucionesParse(){
             nuevoElemento.on('click', function (){
                 cargaSolucion(solucion.id)
             });
-            nuevoElemento.appendTo('#soluciones');
+            var li = $('<li>').append(nuevoElemento);
+            li.appendTo('#soluciones');
 
             console.log("Solucion: " + solucion.get('name') + ", " + solucion.get('vehicleRouteList') + ', ' + solucion.get('distance'));
         }
@@ -76,7 +77,8 @@ function listaProblemasParse(){
             nuevoElemento.on('click', function (){
                 cargaProblema(problema.id)
             });
-            nuevoElemento.appendTo('#problemas');
+            var li = $('<li>').append(nuevoElemento);
+            li.appendTo('#problemas');
             console.log(problema);
             //console.log("Problema: " + solucion.get('name') + ", " + solucion.get('vehicleRouteList') + ', ' + solucion.get('distance'));
         }

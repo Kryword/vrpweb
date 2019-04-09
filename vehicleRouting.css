@@ -30,16 +30,13 @@
     padding: 0;
 }
 
-#map {
+#mapD {
     height: 100%;
     width: 100%;
 }
-
-#container {
+#map {
     height: 100%;
     width: 100%;
-    overflow: hidden;
-    padding-left: 27%;
 }
 
 body, html {
@@ -47,56 +44,25 @@ body, html {
     padding: 0;
     height: 100%;
     width: 100%;
+}
+
+#sidenav {
     overflow: hidden;
-    background-color: #cccccc;
 }
 
-.sidenav {
+#main {
     height: 100%;
-    width: 25%;
-    position: absolute;
-    z-index: 1001;
-    top: 0;
-    left: 0;
-    background-color: #ababab;
-    overflow-x: hidden;
-    padding-top: 20px;
-    transition: 0.2s;
 }
 
-.sidenav a {
-    padding: 8 8 8 8;
-    text-decoration: none;
-    font-size: 25px;
-    color: black;
-    display: block;
-    transition: 0.3s;
-}
+/* Color Theme Swatches in Hex */
+.cc1 { color: #1C1D21; }
+.cc2 { color: #31353D; }
+.cc3 { color: #445878; }
+.cc4 { color: #92CDCF; }
+.cc5 { color: #EEEFF7; }
 
-.sidenav a:hover {
-    color: grey;
-}
-
-.sidenav .closebtn {
-    position: absolute;
-    top: 0;
-    right: 5px;
-    font-size: 36px;
-    color: red;
-}
-
-.sidenav .closebtn:hover {
-    color: darkred;
-}
-
-.sidenav h2 {
-    color: white;
-}
-
-#abrirNav {
-    transition: 0.2s;
-}
-
-#abrirNav:hover {
-    background-color: darkgrey;
-}
+.cb1 { background-color: #1C1D21; }
+.cb2 { background-color: #31353D; }
+.cb3 { background-color: #445878; }
+.cb4 { background-color: #92CDCF; }
+.cb5 { background-color: #EEEFF7; }
