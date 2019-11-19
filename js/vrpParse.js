@@ -1,5 +1,14 @@
-Parse.initialize('vrpparse', 'unused');
-Parse.serverURL = 'https://vrpparse.herokuapp.com/parse';
+/**
+ * Author: Cristian Berner
+ * Date: 01/03/2019 - 19/11/2019
+ * Description: This handles the Parse Server specific functionality,
+ *              it handles both save and retrieve from Parse and some
+ *              extra functionality to pass information from Parse to
+ *              the Optaplanner backend
+ */
+
+Parse.initialize(parseServerName, 'unused');
+Parse.serverURL = parseServerUrl;
 
 function guardaSolucionParse(solucion){
     const Store = Parse.Object.extend("Soluciones");
@@ -55,7 +64,7 @@ function listaSolucionesParse(){
             const li = $('<li>').append(nuevoElemento);
             li.appendTo('#soluciones');
 
-            console.log("Solucion: " + solucion.get('name') + ", " + solucion.get('vehicleRouteList') + ', ' + solucion.get('distance'));
+            console.debug("Solucion: " + solucion.get('name') + ", " + solucion.get('vehicleRouteList') + ', ' + solucion.get('distance'));
         }
         $("#loadingImg").hide();
     });
@@ -79,7 +88,7 @@ function listaProblemasParse(){
             });
             const li = $('<li>').append(nuevoElemento);
             li.appendTo('#problemas');
-            console.log(problema);
+            console.debug(problema);
         }
         $("#loadingImg").hide();
     });
@@ -101,7 +110,7 @@ function cargaProblema(id){
                 formData.append("fileToUpload", message);
                 formData.append("fileName", "ficheroPrueba.vrp");
                 $.ajax({
-                    url: ipREST + "/rest/vehiclerouting/solution/upload",
+                    url: optaplannerBackendUrl + "/rest/vehiclerouting/solution/upload",
                     type: 'POST',
                     data: formData,
                     success: function(){
@@ -128,14 +137,12 @@ function cargaSolucion(id){
             distance: solucion.get('distance'),
             feasible: solucion.get('feasible')
         });
-
-        let markers = markers || [];
         // Muestro los nuevos puntos en el mapa, copiado y modificado de "loadSolution"
         for (let i = 0; i < markers.length; i++) {
             map.removeLayer(markers[i]);
         }
 
-        console.log(solution);
+        console.debug(solution);
         $.each(solution.customerList, function(index, customer) {
             const customerIcon = L.divIcon({
                 iconSize: new L.Point(20, 20),
@@ -178,7 +185,7 @@ $("form#subirFichero").submit(function(e){
     e.preventDefault();
     const formData = new FormData(this);
     $.ajax({
-        url: ipREST + "/rest/vehiclerouting/solution/upload",
+        url: optaplannerBackendUrl + "/rest/vehiclerouting/solution/upload",
         type: 'POST',
         data: formData,
         success: function(){
@@ -207,7 +214,7 @@ $("form#subirFichero").submit(function(e){
                         "file": parseFile
                     });
                 }, function(){
-                    console.log("Se ha producido un error al guardar el fichero en parse.");
+                    console.error("Se ha producido un error al guardar el fichero en parse.");
                 });
             }else{
                 // Subimos el problema a Parse
@@ -221,11 +228,11 @@ $("form#subirFichero").submit(function(e){
                             listaProblemasParse();
                         });
                 }, function(){
-                    console.log("Se ha producido un error al guardar el fichero en parse.");
+                    console.error("Se ha producido un error al guardar el fichero en parse.");
                 });
             }
         }, (error) => {
-            console.log("Se produjo un error al subir el archivo a Parse: " + error.number + " " + error.message);
+            console.error("Se produjo un error al subir el archivo a Parse: " + error.number + " " + error.message);
         });
     }
 });

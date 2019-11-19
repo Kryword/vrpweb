@@ -1,7 +1,9 @@
-//var ipREST = "http://192.168.56.101:8080/optaplanner";
-//var ipREST = "http://localhost:8080/optaplanner";
-const ipREST = "https://opta.herokuapp.com/optaplanner";
-//var ipREST = "https://vrpweb.herokuapp.com/api";
+/**
+ * Author: Cristian Berner
+ * Date: 01/03/2019 - 19/11/2019
+ * Description: This handles the map specific functions and
+ *              how the Optaplanner solution is displayed on the map
+ */
 let savedSolution;
 let map;
 let vehicleRouteLayerGroup;
@@ -18,14 +20,14 @@ const initMap = function() {
 };
 
 const ajaxError = function(jqXHR, textStatus, errorThrown) {
-    console.log("Error: " + errorThrown);
-    console.log("TextStatus: " + textStatus);
-    console.log("jqXHR: " + jqXHR);
+    console.error("Error: " + errorThrown);
+    console.error("TextStatus: " + textStatus);
+    console.error("jqXHR: " + jqXHR);
 };
 
 const loadSolution = function() {
     $.ajax({
-        url: ipREST + "/rest/vehiclerouting/solution",
+        url: optaplannerBackendUrl + "/rest/vehiclerouting/solution",
         type: "GET",
         dataType : "json",
         xhrFields: {
@@ -39,7 +41,7 @@ const loadSolution = function() {
             }
 
             markers = [];
-            console.log(solution);
+            console.debug(solution);
             $.each(solution.customerList, function(index, customer) {
                 const customerIcon = L.divIcon({
                     iconSize: new L.Point(20, 20),
@@ -57,7 +59,7 @@ const loadSolution = function() {
 
 const updateSolution = function() {
     $.ajax({
-        url: ipREST+"/rest/vehiclerouting/solution",
+        url: optaplannerBackendUrl+"/rest/vehiclerouting/solution",
         type: "GET",
         dataType : "json",
         xhrFields: {
@@ -87,7 +89,7 @@ const updateSolution = function() {
 const solve = function() {
     $('#solveButton').prop("disabled", false);
     $.ajax({
-        url: ipREST + "/rest/vehiclerouting/solution/solve",
+        url: optaplannerBackendUrl + "/rest/vehiclerouting/solution/solve",
         type: "POST",
         dataType : "json",
         data : "",
@@ -96,7 +98,7 @@ const solve = function() {
         },
         success: function(message) {
             loadSolution();
-            console.log(message.text);
+            console.info(message.text);
             intervalTimer = setInterval(function () {
                 updateSolution()
             }, 2000);
@@ -110,7 +112,7 @@ const terminateEarly = function () {
     $('#terminateEarlyButton').prop("disabled", false);
     window.clearInterval(intervalTimer);
     $.ajax({
-        url: ipREST+"/rest/vehiclerouting/solution/terminateEarly",
+        url: optaplannerBackendUrl+"/rest/vehiclerouting/solution/terminateEarly",
         type: "POST",
         data : "",
         dataType : "json",
@@ -118,7 +120,7 @@ const terminateEarly = function () {
             withCredentials: true
         },
         success: function( message ) {
-            console.log(message.text);
+            console.info(message.text);
             $('#solveButton').prop("disabled", false);
             $('#terminateEarlyButton').prop("disabled", true);
         }, error : function(jqXHR, textStatus, errorThrown) {ajaxError(jqXHR, textStatus, errorThrown)}
@@ -129,7 +131,7 @@ const clearSolution = function () {
     window.clearInterval(intervalTimer);
     savedSolution = null;
     $.ajax({
-        url: ipREST + "/rest/vehiclerouting/solution/clear",
+        url: optaplannerBackendUrl + "/rest/vehiclerouting/solution/clear",
         type: "POST",
         data: "",
         dataType: "json",
@@ -137,7 +139,7 @@ const clearSolution = function () {
             withCredentials: true
         },
         success: function (message) {
-            console.log(message.text);
+            console.info(message.text);
             loadSolution();
             $('#solveButton').prop("disabled", false);
             $('#terminateEarlyButton').prop("disabled", true);
