@@ -1,14 +1,14 @@
 //var ipREST = "http://192.168.56.101:8080/optaplanner";
 //var ipREST = "http://localhost:8080/optaplanner";
-var ipREST = "https://opta.herokuapp.com/optaplanner";
+const ipREST = "https://opta.herokuapp.com/optaplanner";
 //var ipREST = "https://vrpweb.herokuapp.com/api";
-var savedSolution;
-var map;
-var vehicleRouteLayerGroup;
-var markers = [];
-var intervalTimer;
+let savedSolution;
+let map;
+let vehicleRouteLayerGroup;
+let markers = [];
+let intervalTimer;
 
-initMap = function() {
+const initMap = function() {
     map = L.map('map');
     L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -17,16 +17,15 @@ initMap = function() {
     updateSolution();
 };
 
-ajaxError = function(jqXHR, textStatus, errorThrown) {
+const ajaxError = function(jqXHR, textStatus, errorThrown) {
     console.log("Error: " + errorThrown);
     console.log("TextStatus: " + textStatus);
     console.log("jqXHR: " + jqXHR);
-    alert("Error: " + errorThrown);
 };
 
-loadSolution = function() {
+const loadSolution = function() {
     $.ajax({
-        url: ipREST+"/rest/vehiclerouting/solution",
+        url: ipREST + "/rest/vehiclerouting/solution",
         type: "GET",
         dataType : "json",
         xhrFields: {
@@ -34,7 +33,7 @@ loadSolution = function() {
         },
         success: function(solution) {
             if (!(markers === undefined || markers.length === 0)){
-                for (var i = 0; i < markers.length; i++) {
+                for (let i = 0; i < markers.length; i++) {
                     map.removeLayer(markers[i]);
                 }
             }
@@ -42,12 +41,12 @@ loadSolution = function() {
             markers = [];
             console.log(solution);
             $.each(solution.customerList, function(index, customer) {
-                var customerIcon = L.divIcon({
+                const customerIcon = L.divIcon({
                     iconSize: new L.Point(20, 20),
                     className: "vehicleRoutingCustomerMarker",
                     html: "<span>" + customer.demand + "</span>"
                 });
-                var marker = L.marker([customer.latitude, customer.longitude], {icon: customerIcon});
+                const marker = L.marker([customer.latitude, customer.longitude], {icon: customerIcon});
                 marker.addTo(map).bindPopup(customer.locationName + "</br>Deliver " + customer.demand + " items.");
                 markers.push(marker);
             });
@@ -56,7 +55,7 @@ loadSolution = function() {
     });
 };
 
-updateSolution = function() {
+const updateSolution = function() {
     $.ajax({
         url: ipREST+"/rest/vehiclerouting/solution",
         type: "GET",
@@ -66,13 +65,13 @@ updateSolution = function() {
         },
         success: function(solution) {
             savedSolution = solution;
-            if (vehicleRouteLayerGroup != undefined) {
+            if (vehicleRouteLayerGroup !== undefined) {
                 map.removeLayer(vehicleRouteLayerGroup);
             }
-            var vehicleRouteLines = [];
+            const vehicleRouteLines = [];
             $.each(solution.vehicleRouteList, function(index, vehicleRoute) {
-                var locations = [[vehicleRoute.depotLatitude, vehicleRoute.depotLongitude]];
-                $.each(vehicleRoute.customerList, function(index, customer) {
+                const locations = [[vehicleRoute.depotLatitude, vehicleRoute.depotLongitude]];
+                $.each(vehicleRoute.customerList, function(innerIndex, customer) {
                     locations.push([customer.latitude, customer.longitude]);
                 });
                 locations.push([vehicleRoute.depotLatitude, vehicleRoute.depotLongitude]);
@@ -85,10 +84,10 @@ updateSolution = function() {
     });
 };
 
-solve = function() {
+const solve = function() {
     $('#solveButton').prop("disabled", false);
     $.ajax({
-        url: ipREST+"/rest/vehiclerouting/solution/solve",
+        url: ipREST + "/rest/vehiclerouting/solution/solve",
         type: "POST",
         dataType : "json",
         data : "",
@@ -107,7 +106,7 @@ solve = function() {
     });
 };
 
-terminateEarly = function () {
+const terminateEarly = function () {
     $('#terminateEarlyButton').prop("disabled", false);
     window.clearInterval(intervalTimer);
     $.ajax({
@@ -120,40 +119,39 @@ terminateEarly = function () {
         },
         success: function( message ) {
             console.log(message.text);
-            //updateSolution();
             $('#solveButton').prop("disabled", false);
             $('#terminateEarlyButton').prop("disabled", true);
         }, error : function(jqXHR, textStatus, errorThrown) {ajaxError(jqXHR, textStatus, errorThrown)}
     });
 };
 
-clearSolution = function () {
+const clearSolution = function () {
     window.clearInterval(intervalTimer);
     savedSolution = null;
     $.ajax({
-        url: ipREST+"/rest/vehiclerouting/solution/clear",
+        url: ipREST + "/rest/vehiclerouting/solution/clear",
         type: "POST",
-        data : "",
-        dataType : "json",
+        data: "",
+        dataType: "json",
         xhrFields: {
             withCredentials: true
         },
-        success: function( message ) {
+        success: function (message) {
             console.log(message.text);
-            //updateSolution();
-            //initMap();
             loadSolution();
             $('#solveButton').prop("disabled", false);
             $('#terminateEarlyButton').prop("disabled", true);
-        }, error : function(jqXHR, textStatus, errorThrown) {ajaxError(jqXHR, textStatus, errorThrown)}
+        }, error: function (jqXHR, textStatus, errorThrown) {
+            ajaxError(jqXHR, textStatus, errorThrown)
+        }
     });
 };
 
-guardarSolucion = function(){
-    if (savedSolution != undefined && savedSolution != null){
+const guardarSolucion = function(){
+    if (savedSolution !== undefined && savedSolution != null){
         guardaSolucionParse(savedSolution);
         saveTextAs(JSON.stringify(savedSolution), "solucion.json");
     }
-}
+};
 
 initMap();
